@@ -7,6 +7,8 @@
 
 **Digitalab NG** is an interactive digital science laboratory designed to make high-quality, practical science education accessible to secondary school students throughout Nigeria (Senior Secondary 1–3) across **Physics**, **Chemistry**, and **Biology**.
 
+The Next.js App Router application is in `src/app/`. The student and teacher demo portals work immediately without Supabase credentials; notebook entries, assignments and grades are saved in the current browser.
+
 The platform provides precision virtual apparatus benches, mathematically accurate simulation engines, a digital laboratory notebook, and a complete instructor grading studio equipped with the standard 8-part WAEC/NECO practical evaluation rubric.
 
 ---
@@ -66,13 +68,10 @@ Additional sample students enrolled:
 ## 🛠️ Technology Stack
 
 - **Framework**: Next.js 14 App Router, TypeScript (Strict Mode)
-- **Styling**: Tailwind CSS with custom scientific palette (`#142B45`, `#0D1B2A`, `#2867A8`, `#168A83`, `#27845B`, `#F5F7FA`)
+- **Styling**: Responsive CSS with a custom scientific palette (`#142B45`, `#0D1B2A`, `#2867A8`, `#168A83`, `#27845B`, `#F5F7FA`)
 - **Icons**: Lucide React
-- **Visuals & Charts**: HTML5 Canvas animation, SVG apparatus models, Recharts
-- **Database & Data Layer**:
-  - Remote: Supabase PostgreSQL (`supabase/migrations/001_initial_schema.sql` with full RLS)
-  - Local / Demo: Typed In-Memory & LocalStorage Repository Adapter (`src/lib/repository/index.ts`) providing 100% full CRUD operations without requiring an active database connection
-- **Validation**: Zod
+- **Visuals**: SVG apparatus models, CSS animations, and responsive score charts
+- **Demo data and persistence**: Typed curriculum/demo data in `src/lib/demo-data.ts`; browser LocalStorage persistence for practical notes, observations, assignments and grades. No database or credentials are required for the demo.
 - **Testing**: Vitest (`src/test/*.test.ts`)
 
 ---
@@ -95,7 +94,12 @@ Copy `.env.example` to `.env.local`:
 ```bash
 cp .env.example .env.local
 ```
-*(Note: Supabase credentials are optional for local demo mode. If omitted, the local repository adapter automatically provides full persistence and seed data!)*
+*(Supabase credentials are not required. The demo portals use local browser storage and seeded sample data.)*
+
+### Application routes
+- `/` — Welcome page and student/teacher entry points
+- `/student` — Student dashboard; `/student/labs`, `/student/notebook`, and `/student/assessments`
+- `/teacher` — Teacher dashboard; `/teacher/classes`, `/teacher/assignments`, and `/teacher/grading`
 
 ### 3. Run Automated Tests
 ```bash
@@ -130,29 +134,15 @@ npm start
 
 ---
 
-## 📊 Database Schema & Row-Level Security (RLS)
+## 💾 Demo data and privacy
 
-The database schema is fully defined in `supabase/migrations/001_initial_schema.sql` and seeded in `supabase/seed.sql`:
-- `profiles`: User roles (`student` vs `teacher`), school name, class level, student ID.
-- `subjects`: Physics, Chemistry, Biology.
-- `topics`: Senior secondary curriculum topics with learning objectives.
-- `experiments`: Apparatus lists, procedures, safety instructions, simulation types.
-- `classes`: Teacher classes with unique 6-character enrolment codes.
-- `class_members`: Student class enrolment records.
-- `assignments`: Practical assignments with due dates, attempt limits, and 8-part rubrics.
-- `submissions`: Student observation tables, calculated values, and reports.
-- `grades` & `grade_items`: Teacher rubric marks, per-criterion feedback, total scores, and grade bands.
-- `notifications`: Real in-app alerts for assignments and published grades.
-- `curriculum_progress`: Student topic mastery levels (Not Started, In Progress, Practising, Mastered).
+The current application is a self-contained demo and does not connect to Supabase. Seeded student, teacher, class, experiment and submission data is defined in `src/lib/demo-data.ts`. Practical notebook text and readings, created assignments, lab observations and grading results are stored in browser LocalStorage on the device running the app. Clear that browser's site data to reset the demo. The Supabase environment variables in `.env.example` are optional and are not used by the demo.
 
 ---
 
 ## 🧪 Automated Test Suite
 
-Vitest automated test files in `src/test/`:
-- `simulations.test.ts`: Validates pendulum gravity formulas ($T = 2\pi\sqrt{L/g}$ and $g = 4\pi^2 L / T^2$), Ohm's law ($I = V/R$), titration stoichiometry ($C_A = C_B V_B / V_A$), and microscope optical magnification.
-- `repository.test.ts`: Validates demo student and teacher retrieval, experiment listing, grade band categorization ($A, B, C, D, E, F$), and rubric submission grading.
-- `security.test.ts`: Validates class enrolment code enforcement, role boundaries, and report version incrementing.
+The Vitest suite in `src/test/` checks the seeded demo accounts and practicals, pendulum/Ohm's law/titration calculations, grade bands and the 8-part rubric:
 
 ---
 
